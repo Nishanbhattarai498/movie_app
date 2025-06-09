@@ -81,12 +81,55 @@ class HomeTab extends StatelessWidget {
           IconButton(icon: Icon(Icons.notifications), onPressed: () {}),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Consumer<MovieProvider>(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final movieProvider = Provider.of<MovieProvider>(context, listen: false);
+          await movieProvider.refreshAllData();
+        },
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [Consumer<MovieProvider>(
               builder: (context, movieProvider, child) {
+                if (movieProvider.isLoading && movieProvider.trendingMovies.isEmpty) {
+                  return Container(
+                    height: 300,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                
+                if (movieProvider.error.isNotEmpty && movieProvider.trendingMovies.isEmpty) {
+                  return Container(
+                    height: 300,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, size: 48, color: Colors.red),
+                          SizedBox(height: 16),
+                          Text(
+                            'Failed to load movies',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Please check your internet connection',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => movieProvider.refreshAllData(),
+                            child: Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                
                 if (movieProvider.trendingMovies.isNotEmpty) {
                   return FeaturedMovie(
                     movie: movieProvider.trendingMovies.first,
@@ -166,30 +209,53 @@ class HomeTab extends StatelessWidget {
                   ],
                 );
               },
-            ),
-            Consumer<MovieProvider>(
+            ),            Consumer<MovieProvider>(
               builder: (context, movieProvider, child) {
+                if (movieProvider.isLoading && 
+                    movieProvider.trendingMovies.isEmpty && 
+                    movieProvider.popularMovies.isEmpty && 
+                    movieProvider.upcomingMovies.isEmpty) {
+                  return Container(
+                    height: 300,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                
                 return Column(
                   children: [
-                    MovieSection(
-                      title: 'Trending Now',
-                      movies: movieProvider.trendingMovies,
-                    ),
-                    SizedBox(height: 20),
-                    MovieSection(
-                      title: 'Popular Movies',
-                      movies: movieProvider.popularMovies,
-                    ),
-                    SizedBox(height: 20),
-                    MovieSection(
-                      title: 'Coming Soon',
-                      movies: movieProvider.upcomingMovies,
-                    ),
-                  ],
+                    if (movieProvider.trendingMovies.isNotEmpty)
+                      MovieSection(
+                        title: 'Trending Now',
+                        movies: movieProvider.trendingMovies,
+                      ),
+                    if (movieProvider.trendingMovies.isNotEmpty)
+                      SizedBox(height: 20),
+                    if (movieProvider.popularMovies.isNotEmpty)
+                      MovieSection(
+                        title: 'Popular Movies',
+                        movies: movieProvider.popularMovies,
+                      ),
+                    if (movieProvider.popularMovies.isNotEmpty)
+                      SizedBox(height: 20),
+                    if (movieProvider.upcomingMovies.isNotEmpty)
+                      MovieSection(
+                        title: 'Coming Soon',
+                        movies: movieProvider.upcomingMovies,
+                      ),
+                    if (movieProvider.topRatedMovies.isNotEmpty) ...[
+                      SizedBox(height: 20),
+                      MovieSection(
+                        title: 'Top Rated',
+                        movies: movieProvider.topRatedMovies,
+                      ),
+                    ],                  ],
                 );
               },
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
