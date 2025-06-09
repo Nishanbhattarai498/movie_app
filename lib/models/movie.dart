@@ -110,7 +110,7 @@ class Movie {
     if (posterPath.isEmpty) return '';
     return 'https://image.tmdb.org/t/p/w500$posterPath';
   }
-  
+
   String get fullBackdropPath {
     if (backdropPath.isEmpty) return '';
     return 'https://image.tmdb.org/t/p/w1280$backdropPath';

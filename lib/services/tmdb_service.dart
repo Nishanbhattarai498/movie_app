@@ -12,14 +12,14 @@ class TMDBService {
   // Get trending movies
   static Future<List<Movie>> getTrendingMovies() async {
     final url = '$_baseUrl/trending/movie/day?api_key=$_apiKey';
-    
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> results = data['results'];
-        
+
         return results.map((json) => Movie.fromTMDBJson(json)).toList();
       } else {
         throw Exception('Failed to load trending movies');
@@ -32,14 +32,14 @@ class TMDBService {
   // Get popular movies
   static Future<List<Movie>> getPopularMovies() async {
     final url = '$_baseUrl/movie/popular?api_key=$_apiKey';
-    
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> results = data['results'];
-        
+
         return results.map((json) => Movie.fromTMDBJson(json)).toList();
       } else {
         throw Exception('Failed to load popular movies');
@@ -52,14 +52,14 @@ class TMDBService {
   // Get upcoming movies
   static Future<List<Movie>> getUpcomingMovies() async {
     final url = '$_baseUrl/movie/upcoming?api_key=$_apiKey';
-    
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> results = data['results'];
-        
+
         return results.map((json) => Movie.fromTMDBJson(json)).toList();
       } else {
         throw Exception('Failed to load upcoming movies');
@@ -72,14 +72,14 @@ class TMDBService {
   // Get top rated movies
   static Future<List<Movie>> getTopRatedMovies() async {
     final url = '$_baseUrl/movie/top_rated?api_key=$_apiKey';
-    
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> results = data['results'];
-        
+
         return results.map((json) => Movie.fromTMDBJson(json)).toList();
       } else {
         throw Exception('Failed to load top rated movies');
@@ -91,15 +91,16 @@ class TMDBService {
 
   // Search movies
   static Future<List<Movie>> searchMovies(String query) async {
-    final url = '$_baseUrl/search/movie?api_key=$_apiKey&query=${Uri.encodeComponent(query)}';
-    
+    final url =
+        '$_baseUrl/search/movie?api_key=$_apiKey&query=${Uri.encodeComponent(query)}';
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> results = data['results'];
-        
+
         return results.map((json) => Movie.fromTMDBJson(json)).toList();
       } else {
         throw Exception('Failed to search movies');
@@ -111,11 +112,12 @@ class TMDBService {
 
   // Get movie details
   static Future<Movie> getMovieDetails(int movieId) async {
-    final url = '$_baseUrl/movie/$movieId?api_key=$_apiKey&append_to_response=videos';
-    
+    final url =
+        '$_baseUrl/movie/$movieId?api_key=$_apiKey&append_to_response=videos';
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return Movie.fromTMDBDetailJson(data);
@@ -130,19 +132,19 @@ class TMDBService {
   // Get movie genres
   static Future<Map<int, String>> getGenres() async {
     final url = '$_baseUrl/genre/movie/list?api_key=$_apiKey';
-    
+
     try {
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> genres = data['genres'];
-        
+
         Map<int, String> genreMap = {};
         for (var genre in genres) {
           genreMap[genre['id']] = genre['name'];
         }
-        
+
         return genreMap;
       } else {
         throw Exception('Failed to load genres');

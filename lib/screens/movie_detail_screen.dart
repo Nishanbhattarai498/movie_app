@@ -22,7 +22,9 @@ class MovieDetailScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    'https://picsum.photos/800/600?random=${movie.id}',
+                    movie.backdropPath.isNotEmpty
+                        ? 'https://image.tmdb.org/t/p/w1280${movie.backdropPath}'
+                        : 'https://image.tmdb.org/t/p/w1280${movie.posterPath}',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -178,8 +180,8 @@ class MovieDetailScreen extends StatelessWidget {
                   Text(
                     'Overview',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   SizedBox(height: 8),
                   Text(
@@ -190,8 +192,8 @@ class MovieDetailScreen extends StatelessWidget {
                   Text(
                     'Details',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   SizedBox(height: 16),
                   _buildDetailRow('Release Date', movie.releaseDate),

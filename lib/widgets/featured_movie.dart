@@ -37,7 +37,11 @@ class FeaturedMovie extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               Image.network(
-                'https://picsum.photos/800/400?random=${movie.id}',
+                movie.backdropPath.isNotEmpty
+                    ? 'https://image.tmdb.org/t/p/w1280${movie.backdropPath}'
+                    : (movie.posterPath.isNotEmpty
+                        ? 'https://image.tmdb.org/t/p/w1280${movie.posterPath}'
+                        : 'https://via.placeholder.com/800x400/cccccc/666666?text=No+Image'),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

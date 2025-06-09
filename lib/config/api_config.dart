@@ -5,8 +5,8 @@ class ApiConfig {
   // 3. Go to Settings > API
   // 4. Request an API key
   // 5. Replace the value below with your actual API key
-  static const String tmdbApiKey = 'YOUR_TMDB_API_KEY_HERE';
-  
+  static const String tmdbApiKey = '3bcf019b6cbb3691e7bda419a90ee038';
+
   // TMDB API endpoints
   static const String tmdbBaseUrl = 'https://api.themoviedb.org/3';
   static const String imageBaseUrl = 'https://image.tmdb.org/t/p/w500';

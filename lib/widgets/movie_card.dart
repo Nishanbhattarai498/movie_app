@@ -27,7 +27,9 @@ class MovieCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 child: Image.network(
-                  'https://picsum.photos/300/400?random=${movie.id}',
+                  movie.posterPath.isNotEmpty
+                      ? 'https://image.tmdb.org/t/p/w500${movie.posterPath}'
+                      : 'https://via.placeholder.com/300x400/cccccc/666666?text=No+Image',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

@@ -83,177 +83,186 @@ class HomeTab extends StatelessWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          final movieProvider = Provider.of<MovieProvider>(context, listen: false);
+          final movieProvider =
+              Provider.of<MovieProvider>(context, listen: false);
           await movieProvider.refreshAllData();
         },
         child: SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Consumer<MovieProvider>(
-              builder: (context, movieProvider, child) {
-                if (movieProvider.isLoading && movieProvider.trendingMovies.isEmpty) {
-                  return Container(
-                    height: 300,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                
-                if (movieProvider.error.isNotEmpty && movieProvider.trendingMovies.isEmpty) {
-                  return Container(
-                    height: 300,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline, size: 48, color: Colors.red),
-                          SizedBox(height: 16),
-                          Text(
-                            'Failed to load movies',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Please check your internet connection',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () => movieProvider.refreshAllData(),
-                            child: Text('Retry'),
-                          ),
-                        ],
+            children: [
+              Consumer<MovieProvider>(
+                builder: (context, movieProvider, child) {
+                  if (movieProvider.isLoading &&
+                      movieProvider.trendingMovies.isEmpty) {
+                    return Container(
+                      height: 300,
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
-                    ),
-                  );
-                }
-                
-                if (movieProvider.trendingMovies.isNotEmpty) {
-                  return FeaturedMovie(
-                    movie: movieProvider.trendingMovies.first,
-                  );
-                }
-                return SizedBox.shrink();
-              },
-            ),
-            SizedBox(height: 20),
-            Consumer<WatchHistoryProvider>(
-              builder: (context, watchHistoryProvider, child) {
-                final movieProvider = Provider.of<MovieProvider>(
-                  context,
-                  listen: false,
-                );
-                final continueWatching = watchHistoryProvider.watchHistory
-                    .where((progress) => !progress.isCompleted)
-                    .take(5)
-                    .toList();
+                    );
+                  }
 
-                if (continueWatching.isEmpty) return SizedBox.shrink();
-
-                return Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Continue Watching',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ContinueWatchingScreen(),
-                                ),
-                              );
-                            },
-                            child: Text('See All'),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    SizedBox(
-                      height: 160,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: continueWatching.length,
-                        itemBuilder: (context, index) {
-                          final progress = continueWatching[index];
-                          final movie = movieProvider.getMovieById(
-                            progress.movieId,
-                          );
-
-                          if (movie == null) return SizedBox.shrink();
-
-                          return Container(
-                            width: 120,
-                            margin: EdgeInsets.only(right: 12),
-                            child: ContinueWatchingCard(
-                              movie: movie,
-                              progress: progress,
+                  if (movieProvider.error.isNotEmpty &&
+                      movieProvider.trendingMovies.isEmpty) {
+                    return Container(
+                      height: 300,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                size: 48, color: Colors.red),
+                            SizedBox(height: 16),
+                            Text(
+                              'Failed to load movies',
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                          );
-                        },
+                            SizedBox(height: 8),
+                            Text(
+                              'Please check your internet connection',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () => movieProvider.refreshAllData(),
+                              child: Text('Retry'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 20),
-                  ],
-                );
-              },
-            ),            Consumer<MovieProvider>(
-              builder: (context, movieProvider, child) {
-                if (movieProvider.isLoading && 
-                    movieProvider.trendingMovies.isEmpty && 
-                    movieProvider.popularMovies.isEmpty && 
-                    movieProvider.upcomingMovies.isEmpty) {
-                  return Container(
-                    height: 300,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    );
+                  }
+
+                  if (movieProvider.trendingMovies.isNotEmpty) {
+                    return FeaturedMovie(
+                      movie: movieProvider.trendingMovies.first,
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
+              ),
+              SizedBox(height: 20),
+              Consumer<WatchHistoryProvider>(
+                builder: (context, watchHistoryProvider, child) {
+                  final movieProvider = Provider.of<MovieProvider>(
+                    context,
+                    listen: false,
                   );
-                }
-                
-                return Column(
-                  children: [
-                    if (movieProvider.trendingMovies.isNotEmpty)
-                      MovieSection(
-                        title: 'Trending Now',
-                        movies: movieProvider.trendingMovies,
+                  final continueWatching = watchHistoryProvider.watchHistory
+                      .where((progress) => !progress.isCompleted)
+                      .take(5)
+                      .toList();
+
+                  if (continueWatching.isEmpty) return SizedBox.shrink();
+
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Continue Watching',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ContinueWatchingScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text('See All'),
+                            ),
+                          ],
+                        ),
                       ),
-                    if (movieProvider.trendingMovies.isNotEmpty)
+                      SizedBox(height: 8),
+                      SizedBox(
+                        height: 160,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: continueWatching.length,
+                          itemBuilder: (context, index) {
+                            final progress = continueWatching[index];
+                            final movie = movieProvider.getMovieById(
+                              progress.movieId,
+                            );
+
+                            if (movie == null) return SizedBox.shrink();
+
+                            return Container(
+                              width: 120,
+                              margin: EdgeInsets.only(right: 12),
+                              child: ContinueWatchingCard(
+                                movie: movie,
+                                progress: progress,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       SizedBox(height: 20),
-                    if (movieProvider.popularMovies.isNotEmpty)
-                      MovieSection(
-                        title: 'Popular Movies',
-                        movies: movieProvider.popularMovies,
+                    ],
+                  );
+                },
+              ),
+              Consumer<MovieProvider>(
+                builder: (context, movieProvider, child) {
+                  if (movieProvider.isLoading &&
+                      movieProvider.trendingMovies.isEmpty &&
+                      movieProvider.popularMovies.isEmpty &&
+                      movieProvider.upcomingMovies.isEmpty) {
+                    return Container(
+                      height: 300,
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
-                    if (movieProvider.popularMovies.isNotEmpty)
-                      SizedBox(height: 20),
-                    if (movieProvider.upcomingMovies.isNotEmpty)
-                      MovieSection(
-                        title: 'Coming Soon',
-                        movies: movieProvider.upcomingMovies,
-                      ),
-                    if (movieProvider.topRatedMovies.isNotEmpty) ...[
-                      SizedBox(height: 20),
-                      MovieSection(
-                        title: 'Top Rated',
-                        movies: movieProvider.topRatedMovies,
-                      ),
-                    ],                  ],
-                );
-              },
-            ),
+                    );
+                  }
+
+                  return Column(
+                    children: [
+                      if (movieProvider.trendingMovies.isNotEmpty)
+                        MovieSection(
+                          title: 'Trending Now',
+                          movies: movieProvider.trendingMovies,
+                        ),
+                      if (movieProvider.trendingMovies.isNotEmpty)
+                        SizedBox(height: 20),
+                      if (movieProvider.popularMovies.isNotEmpty)
+                        MovieSection(
+                          title: 'Popular Movies',
+                          movies: movieProvider.popularMovies,
+                        ),
+                      if (movieProvider.popularMovies.isNotEmpty)
+                        SizedBox(height: 20),
+                      if (movieProvider.upcomingMovies.isNotEmpty)
+                        MovieSection(
+                          title: 'Coming Soon',
+                          movies: movieProvider.upcomingMovies,
+                        ),
+                      if (movieProvider.topRatedMovies.isNotEmpty) ...[
+                        SizedBox(height: 20),
+                        MovieSection(
+                          title: 'Top Rated',
+                          movies: movieProvider.topRatedMovies,
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),

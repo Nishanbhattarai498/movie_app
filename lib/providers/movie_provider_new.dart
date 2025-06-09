@@ -127,7 +127,8 @@ class MovieProvider extends ChangeNotifier {
   }
 
   void _populateGenreNames(List<Movie> movies) {
-    for (var movie in movies) {
+    for (int i = 0; i < movies.length; i++) {
+      final movie = movies[i];
       if (movie.genreIds.isNotEmpty && _genres.isNotEmpty) {
         final genreNames = movie.genreIds
             .map((id) => _genres[id])
@@ -135,8 +136,8 @@ class MovieProvider extends ChangeNotifier {
             .cast<String>()
             .toList();
 
-        // Update the movie's genres list
-        final updatedMovie = Movie(
+        // Create updated movie with genre names
+        movies[i] = Movie(
           id: movie.id,
           title: movie.title,
           overview: movie.overview,
@@ -153,12 +154,6 @@ class MovieProvider extends ChangeNotifier {
           voteCount: movie.voteCount,
           adult: movie.adult,
         );
-
-        // Replace the movie in the list
-        final index = movies.indexOf(movie);
-        if (index != -1) {
-          movies[index] = updatedMovie;
-        }
       }
     }
   }
@@ -185,20 +180,6 @@ class MovieProvider extends ChangeNotifier {
         trailerUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       );
     });
-  }
-
-  Movie? getMovieById(int id) {
-    final allMovies = [
-      ..._trendingMovies,
-      ..._popularMovies,
-      ..._upcomingMovies,
-      ..._topRatedMovies,
-    ];
-    try {
-      return allMovies.firstWhere((movie) => movie.id == id);
-    } catch (e) {
-      return null;
-    }
   }
 
   Future<void> refreshAllData() async {
