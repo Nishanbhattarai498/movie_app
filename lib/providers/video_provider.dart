@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../models/streaming_source.dart';
+import '../services/public_domain_service.dart';
 
 class VideoProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
@@ -30,7 +31,6 @@ class VideoProvider extends ChangeNotifier {
   double get playbackSpeed => _playbackSpeed;
   double get volume => _volume;
   bool get showControls => _showControls;
-
   Future<void> initializeVideo(MovieStream movieStream) async {
     try {
       _availableSources = movieStream.sources;
@@ -52,6 +52,52 @@ class VideoProvider extends ChangeNotifier {
     } catch (e) {
       print('Error initializing video: $e');
     }
+  }
+
+  // New method to load real movie streams
+  Future<void> initializeMovieStreaming(int movieId) async {
+    try {
+      // Load real streaming sources from public domain service
+      _availableSources = await PublicDomainService.getMovieStreams(movieId);
+      
+      if (_availableSources.isNotEmpty) {
+        _currentSource = _availableSources.first;
+        _currentQuality = _currentSource!.quality;
+
+        _controller = VideoPlayerController.networkUrl(
+          Uri.parse(_currentSource!.url),
+        );
+
+        await _controller!.initialize();
+        _isInitialized = true;
+        _duration = _controller!.value.duration;
+
+        _controller!.addListener(_videoListener);
+        notifyListeners();
+      } else {
+        throw Exception('No streaming sources available');
+      }
+    } catch (e) {
+      print('Error initializing movie streaming: $e');
+      // Fallback to demo content
+      await _initializeFallbackContent();
+    }
+  }
+
+  Future<void> _initializeFallbackContent() async {
+    _availableSources = await PublicDomainService.getMovieStreams(0); // Get fallback
+    _currentSource = _availableSources.first;
+    _currentQuality = _currentSource!.quality;
+
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(_currentSource!.url),
+    );
+
+    await _controller!.initialize();
+    _isInitialized = true;
+    _duration = _controller!.value.duration;
+    _controller!.addListener(_videoListener);
+    notifyListeners();
   }
 
   void _videoListener() {

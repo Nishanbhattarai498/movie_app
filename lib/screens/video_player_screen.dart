@@ -39,12 +39,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
-    ]);
-
-    // Hide system UI for immersive experience
+    ]);    // Hide system UI for immersive experience
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    _initializeVideo();
+    _initializeRealVideo();
   }
 
   Future<void> _initializeVideo() async {
@@ -105,6 +103,34 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     setState(() {
       _isInitialized = true;
     });
+  }
+
+  Future<void> _initializeRealVideo() async {
+    try {
+      // Try to load real movie streaming first
+      await videoProvider.initializeMovieStreaming(widget.movie.id);
+
+      // Resume from last watched position if available
+      final watchProgress = watchHistoryProvider.getWatchProgress(
+        widget.movie.id,
+      );
+      if (watchProgress != null && watchProgress.currentPosition > 30) {
+        await videoProvider.seekTo(
+          Duration(seconds: watchProgress.currentPosition),
+        );
+
+        // Show resume dialog
+        _showResumeDialog(watchProgress);
+      }
+
+      setState(() {
+        _isInitialized = true;
+      });
+    } catch (e) {
+      print('Error initializing video: $e');
+      // Fall back to demo content
+      await _initializeVideo();
+    }
   }
 
   void _showResumeDialog(WatchProgress progress) {

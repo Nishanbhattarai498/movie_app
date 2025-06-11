@@ -1,10 +1,5 @@
 class ApiConfig {
-  // Get your API key from https://www.themoviedb.org/settings/api
-  // 1. Go to https://www.themoviedb.org/
-  // 2. Create an account or login
-  // 3. Go to Settings > API
-  // 4. Request an API key
-  // 5. Replace the value below with your actual API key
+  
   static const String tmdbApiKey = '3bcf019b6cbb3691e7bda419a90ee038';
 
   // TMDB API endpoints

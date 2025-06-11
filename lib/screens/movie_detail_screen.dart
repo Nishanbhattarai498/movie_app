@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/movie.dart';
 import '../providers/favorites_provider.dart';
+import '../services/public_domain_service.dart';
 import 'video_player_screen.dart'; // Import the video player screen
 
 class MovieDetailScreen extends StatelessWidget {
