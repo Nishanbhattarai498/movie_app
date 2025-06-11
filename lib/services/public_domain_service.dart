@@ -4,19 +4,22 @@ import '../models/streaming_source.dart';
 
 class PublicDomainService {
   // Internet Archive has many public domain movies
-  static const String _baseUrl = 'https://archive.org/metadata';
-  // Sample public domain movies from Internet Archive
-  static const Map<int, String> _publicDomainMovies = {
-    1: 'night_of_the_living_dead_1968', // Night of the Living Dead (1968)
-    2: 'plan_9_from_outer_space', // Plan 9 from Outer Space
-    3: 'TheManWithTheMovieCamera', // The Man with the Movie Camera
-    4: 'Metropolis1927', // Metropolis (1927) - corrected ID
-    5: 'Charade_Cary_Grant_Audrey_Hepburn_1963', // Charade (1963)
-    6: 'His_Girl_Friday_1940', // His Girl Friday
-    7: 'cc_1940_the_great_dictator', // The Great Dictator
-    8: 'DuckandCover1951', // Duck and Cover
-    9: 'ReeferMadness1936', // Reefer Madness
-    10: 'The_phantom_of_the_opera_1925', // Phantom of the Opera (1925)
+  static const String _baseUrl =
+      'https://archive.org/metadata'; // Verified working public domain movies from Internet Archive
+  // Maps TMDB movie IDs to Archive.org identifiers
+  static const Map<int, String> _tmdbToArchive = {
+    // Only include verified working content
+    // Add TMDB IDs for actual public domain movies as we verify them
+    1396:
+        'night-of-the-living-dead-1968', // Night of the Living Dead - VERIFIED
+    // Future additions should be tested first
+  };
+
+  // Experimental content for testing (not yet verified)
+  static const Map<int, String> _experimental = {
+    62: 'metropolis_test', // Metropolis TMDB ID (example)
+    11002: 'plan9_test', // Plan 9 TMDB ID (example)
+    // These may not work - for testing only
   };
   static Future<List<StreamingSource>> getMovieStreams(int movieId) async {
     final archiveId = _publicDomainMovies[movieId];
@@ -30,7 +33,7 @@ class PublicDomainService {
     try {
       final url = '$_baseUrl/$archiveId';
       print('API URL: $url');
-      
+
       final response = await http.get(
         Uri.parse(url),
         headers: {'Accept': 'application/json'},
@@ -38,7 +41,7 @@ class PublicDomainService {
 
       print('Response status: ${response.statusCode}');
       print('Response headers: ${response.headers}');
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print('API response received, parsing streams...');
@@ -55,10 +58,11 @@ class PublicDomainService {
     print('Falling back to demo streams');
     return _getFallbackStreams();
   }
+
   static List<StreamingSource> _parseArchiveStreams(
       Map<String, dynamic> data, String archiveId) {
     final List<StreamingSource> sources = [];
-    
+
     print('Parsing streams for archive: $archiveId');
 
     if (data['files'] != null) {
@@ -68,18 +72,17 @@ class PublicDomainService {
       files.forEach((filename, fileData) {
         final format = fileData['format']?.toString().toLowerCase() ?? '';
         final source = fileData['source']?.toString().toLowerCase() ?? '';
-        
+
         print('File: $filename, Format: $format, Source: $source');
-        
+
         // Look for video files in various formats
-        if (format.contains('mpeg4') || 
+        if (format.contains('mpeg4') ||
             format.contains('mp4') ||
             format.contains('h.264') ||
             format.contains('video') ||
             filename.toLowerCase().endsWith('.mp4') ||
             filename.toLowerCase().endsWith('.avi') ||
             filename.toLowerCase().endsWith('.mkv')) {
-          
           final size = fileData['size']?.toString() ?? '';
           String quality = 'SD';
 
@@ -93,11 +96,14 @@ class PublicDomainService {
           } else if (size.isNotEmpty) {
             // Estimate quality based on file size
             final sizeNum = int.tryParse(size) ?? 0;
-            if (sizeNum > 1000000000) { // > 1GB
+            if (sizeNum > 1000000000) {
+              // > 1GB
               quality = '1080p';
-            } else if (sizeNum > 500000000) { // > 500MB
+            } else if (sizeNum > 500000000) {
+              // > 500MB
               quality = '720p';
-            } else if (sizeNum > 100000000) { // > 100MB
+            } else if (sizeNum > 100000000) {
+              // > 100MB
               quality = '480p';
             }
           }
@@ -107,9 +113,10 @@ class PublicDomainService {
             url: 'https://archive.org/download/$archiveId/$filename',
             type: 'mp4',
           );
-          
+
           sources.add(streamingSource);
-          print('Added streaming source: ${streamingSource.quality} - ${streamingSource.url}');
+          print(
+              'Added streaming source: ${streamingSource.quality} - ${streamingSource.url}');
         }
       });
     } else {
@@ -176,18 +183,18 @@ class PublicDomainService {
           Uri.parse('$_baseUrl/$id'),
           headers: {'Accept': 'application/json'},
         );
-        
+
         print('Status: ${response.statusCode}');
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           if (data['files'] != null) {
             final files = data['files'] as Map<String, dynamic>;
             print('Found ${files.length} files');
-            
+
             int videoCount = 0;
             files.forEach((filename, fileData) {
               final format = fileData['format']?.toString() ?? '';
-              if (format.toLowerCase().contains('mp4') || 
+              if (format.toLowerCase().contains('mp4') ||
                   format.toLowerCase().contains('mpeg4') ||
                   filename.toLowerCase().endsWith('.mp4')) {
                 videoCount++;

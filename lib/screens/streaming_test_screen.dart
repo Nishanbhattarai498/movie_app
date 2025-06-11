@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../services/public_domain_service.dart';
 
 class StreamingTestScreen extends StatefulWidget {
@@ -28,14 +30,15 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isRunning ? null : _runArchiveTests,
-                      child: _isRunning 
+                      child: _isRunning
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 ),
                                 SizedBox(width: 8),
                                 Text('Testing...'),
@@ -90,7 +93,7 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
     try {
       // Capture print output
       final buffer = StringBuffer();
-      
+
       // Override print temporarily
       void captureOutput(String message) {
         buffer.writeln(message);
@@ -101,7 +104,6 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
 
       // Run the test with custom print capture
       await _runCustomArchiveTest(captureOutput);
-      
     } catch (e) {
       setState(() {
         _testResults += '\nError running tests: $e';
@@ -132,18 +134,18 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
           Uri.parse('https://archive.org/metadata/$id'),
           headers: {'Accept': 'application/json'},
         );
-        
+
         output('Status: ${response.statusCode}');
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           if (data['files'] != null) {
             final files = data['files'] as Map<String, dynamic>;
             output('Found ${files.length} files');
-            
+
             int videoCount = 0;
             files.forEach((filename, fileData) {
               final format = fileData['format']?.toString() ?? '';
-              if (format.toLowerCase().contains('mp4') || 
+              if (format.toLowerCase().contains('mp4') ||
                   format.toLowerCase().contains('mpeg4') ||
                   format.toLowerCase().contains('h.264') ||
                   filename.toLowerCase().endsWith('.mp4')) {
@@ -167,11 +169,11 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
       } catch (e) {
         output('❌ Exception: $e');
       }
-      
+
       // Small delay to update UI
       await Future.delayed(Duration(milliseconds: 100));
     }
-    
+
     output('\n=== Test Complete ===');
   }
 
@@ -183,25 +185,24 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
 
     try {
       final sources = await PublicDomainService.getMovieStreams(4);
-      
+
       setState(() {
         _testResults += 'Results for Movie ID 4:\n';
         _testResults += 'Found ${sources.length} streaming sources:\n\n';
-        
+
         for (int i = 0; i < sources.length; i++) {
           final source = sources[i];
           _testResults += '${i + 1}. Quality: ${source.quality}\n';
           _testResults += '   URL: ${source.url}\n';
           _testResults += '   Type: ${source.type}\n\n';
         }
-        
+
         if (sources.isEmpty) {
           _testResults += '❌ No streaming sources found!\n';
         } else {
           _testResults += '✓ Ready to stream!\n';
         }
       });
-      
     } catch (e) {
       setState(() {
         _testResults += 'Error testing movie: $e\n';
@@ -213,7 +214,3 @@ class _StreamingTestScreenState extends State<StreamingTestScreen> {
     }
   }
 }
-
-// Need to import http and json for the test
-import 'dart:convert';
-import 'package:http/http.dart' as http;

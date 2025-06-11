@@ -45,7 +45,8 @@ class StreamingInfoScreen extends StatelessWidget {
                 Icons.info,
                 Colors.blue,
                 [],
-              ),              SizedBox(height: 20),
+              ),
+              SizedBox(height: 20),
               _buildHowToSection(),
               SizedBox(height: 20),
               _buildTestButton(context),
@@ -190,6 +191,56 @@ class StreamingInfoScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTestButton(BuildContext context) {
+    return Card(
+      color: Colors.black.withOpacity(0.7),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(Icons.bug_report, color: Colors.yellow, size: 24),
+                SizedBox(width: 12),
+                Text(
+                  'Debug Streaming Issues',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Test Internet Archive connections and debug streaming problems:',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StreamingTestScreen(),
+                  ),
+                );
+              },
+              icon: Icon(Icons.play_arrow),
+              label: Text('Run Streaming Tests'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.yellow[700],
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
