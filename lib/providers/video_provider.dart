@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../models/streaming_source.dart';
-import '../services/public_domain_service.dart';
 
 class VideoProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
