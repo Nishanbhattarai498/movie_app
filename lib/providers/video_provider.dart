@@ -59,7 +59,7 @@ class VideoProvider extends ChangeNotifier {
     try {
       // Load real streaming sources from public domain service
       _availableSources = await PublicDomainService.getMovieStreams(movieId);
-      
+
       if (_availableSources.isNotEmpty) {
         _currentSource = _availableSources.first;
         _currentQuality = _currentSource!.quality;
@@ -85,7 +85,8 @@ class VideoProvider extends ChangeNotifier {
   }
 
   Future<void> _initializeFallbackContent() async {
-    _availableSources = await PublicDomainService.getMovieStreams(0); // Get fallback
+    _availableSources =
+        await PublicDomainService.getMovieStreams(0); // Get fallback
     _currentSource = _availableSources.first;
     _currentQuality = _currentSource!.quality;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/public_domain_service.dart';
+import 'streaming_test_screen.dart';
 
 class StreamingInfoScreen extends StatelessWidget {
   @override
@@ -44,9 +45,10 @@ class StreamingInfoScreen extends StatelessWidget {
                 Icons.info,
                 Colors.blue,
                 [],
-              ),
-              SizedBox(height: 20),
+              ),              SizedBox(height: 20),
               _buildHowToSection(),
+              SizedBox(height: 20),
+              _buildTestButton(context),
             ],
           ),
         ),

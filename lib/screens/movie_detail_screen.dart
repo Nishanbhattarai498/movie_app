@@ -142,7 +142,8 @@ class MovieDetailScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(                        child: ElevatedButton.icon(
+                      Expanded(
+                        child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -153,14 +154,16 @@ class MovieDetailScreen extends StatelessWidget {
                             );
                           },
                           icon: Icon(Icons.play_arrow),
-                          label: Text(PublicDomainService.hasRealContent(movie.id) 
-                              ? 'Watch Movie' 
-                              : 'Watch Demo'),
+                          label: Text(
+                              PublicDomainService.hasRealContent(movie.id)
+                                  ? 'Watch Movie'
+                                  : 'Watch Demo'),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 12),
-                            backgroundColor: PublicDomainService.hasRealContent(movie.id)
-                                ? Colors.green
-                                : Theme.of(context).primaryColor,
+                            backgroundColor:
+                                PublicDomainService.hasRealContent(movie.id)
+                                    ? Colors.green
+                                    : Theme.of(context).primaryColor,
                           ),
                         ),
                       ),
@@ -262,7 +265,9 @@ class MovieDetailScreen extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  hasRealContent ? Icons.check_circle : Icons.play_circle_outline,
+                  hasRealContent
+                      ? Icons.check_circle
+                      : Icons.play_circle_outline,
                   color: hasRealContent ? Colors.green : Colors.orange,
                   size: 16,
                 ),
