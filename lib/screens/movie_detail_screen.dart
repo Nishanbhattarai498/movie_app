@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/movie.dart';
 import '../providers/favorites_provider.dart';
-import '../services/public_domain_service.dart';
-import 'video_player_screen.dart'; // Import the video player screen
-import 'streaming_info_screen.dart';
+import 'video_player_screen.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   final Movie movie;
@@ -154,16 +152,10 @@ class MovieDetailScreen extends StatelessWidget {
                             );
                           },
                           icon: Icon(Icons.play_arrow),
-                          label: Text(
-                              PublicDomainService.hasRealContent(movie.id)
-                                  ? 'Watch Movie'
-                                  : 'Watch Demo'),
+                          label: Text('Watch Demo'),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 12),
-                            backgroundColor:
-                                PublicDomainService.hasRealContent(movie.id)
-                                    ? Colors.green
-                                    : Theme.of(context).primaryColor,
+                            backgroundColor: Theme.of(context).primaryColor,
                           ),
                         ),
                       ),
@@ -211,7 +203,6 @@ class MovieDetailScreen extends StatelessWidget {
                   _buildDetailRow('Rating', '${movie.voteAverage}/10'),
                   _buildStreamingAvailability(),
                   SizedBox(height: 16),
-                  _buildStreamingInfoButton(context),
                 ],
               ),
             ),
@@ -244,8 +235,6 @@ class MovieDetailScreen extends StatelessWidget {
   }
 
   Widget _buildStreamingAvailability() {
-    final hasRealContent = PublicDomainService.hasRealContent(movie.id);
-
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -265,17 +254,15 @@ class MovieDetailScreen extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  hasRealContent
-                      ? Icons.check_circle
-                      : Icons.play_circle_outline,
-                  color: hasRealContent ? Colors.green : Colors.orange,
+                  Icons.play_circle_outline,
+                  color: Colors.orange,
                   size: 16,
                 ),
                 SizedBox(width: 4),
                 Text(
-                  hasRealContent ? 'Real content available' : 'Demo content',
+                  'Demo content',
                   style: TextStyle(
-                    color: hasRealContent ? Colors.green : Colors.orange,
+                    color: Colors.orange,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -283,24 +270,6 @@ class MovieDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStreamingInfoButton(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StreamingInfoScreen(),
-          ),
-        );
-      },
-      icon: Icon(Icons.info_outline),
-      label: Text('About Streaming Content'),
-      style: OutlinedButton.styleFrom(
-        padding: EdgeInsets.symmetric(vertical: 8),
       ),
     );
   }

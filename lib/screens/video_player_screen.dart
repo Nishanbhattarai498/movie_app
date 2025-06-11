@@ -42,73 +42,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     ]); // Hide system UI for immersive experience
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    _initializeRealVideo();
+    _initializeVideo();
   }
 
   Future<void> _initializeVideo() async {
-    // Create mock streaming data - in real app, fetch from your backend
-    final movieStream = MovieStream(
-      movieId: widget.movie.id,
-      title: widget.movie.title,
-      sources: [
-        StreamingSource(
-          quality: 'Auto',
-          url:
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          type: 'mp4',
-          isDefault: true,
-        ),
-        StreamingSource(
-          quality: '1080p',
-          url:
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          type: 'mp4',
-        ),
-        StreamingSource(
-          quality: '720p',
-          url:
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-          type: 'mp4',
-        ),
-        StreamingSource(
-          quality: '480p',
-          url:
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          type: 'mp4',
-        ),
-      ],
-      subtitles: [
-        Subtitle(language: 'en', url: '', label: 'English'),
-        Subtitle(language: 'es', url: '', label: 'Spanish'),
-      ],
-      thumbnailUrl: widget.movie.fullPosterPath,
-      duration: 7200, // 2 hours in seconds
-    );
-
-    await videoProvider.initializeVideo(movieStream);
-
-    // Resume from last watched position if available
-    final watchProgress = watchHistoryProvider.getWatchProgress(
-      widget.movie.id,
-    );
-    if (watchProgress != null && watchProgress.currentPosition > 30) {
-      await videoProvider.seekTo(
-        Duration(seconds: watchProgress.currentPosition),
-      );
-
-      // Show resume dialog
-      _showResumeDialog(watchProgress);
-    }
-
-    setState(() {
-      _isInitialized = true;
-    });
-  }
-
-  Future<void> _initializeRealVideo() async {
     try {
-      // Try to load real movie streaming first
-      await videoProvider.initializeMovieStreaming(widget.movie.id);
+      // Initialize with demo video
+      await videoProvider.initializeMovieVideo(widget.movie.id);
 
       // Resume from last watched position if available
       final watchProgress = watchHistoryProvider.getWatchProgress(
@@ -128,8 +68,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       });
     } catch (e) {
       print('Error initializing video: $e');
-      // Fall back to demo content
-      await _initializeVideo();
+      setState(() {
+        _isInitialized = false;
+      });
     }
   }
 

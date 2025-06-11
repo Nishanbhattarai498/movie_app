@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import '../models/streaming_source.dart';
 
 class VideoProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
@@ -10,12 +9,18 @@ class VideoProvider extends ChangeNotifier {
   bool _isFullscreen = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
-  String _currentQuality = 'Auto';
-  List<StreamingSource> _availableSources = [];
-  StreamingSource? _currentSource;
   double _playbackSpeed = 1.0;
   double _volume = 1.0;
   bool _showControls = true;
+
+  // Demo video URLs for all movies
+  static const List<String> _demoVideos = [
+    'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+  ];
 
   // Getters
   VideoPlayerController? get controller => _controller;
@@ -25,79 +30,30 @@ class VideoProvider extends ChangeNotifier {
   bool get isFullscreen => _isFullscreen;
   Duration get position => _position;
   Duration get duration => _duration;
-  String get currentQuality => _currentQuality;
-  List<StreamingSource> get availableSources => _availableSources;
   double get playbackSpeed => _playbackSpeed;
   double get volume => _volume;
   bool get showControls => _showControls;
-  Future<void> initializeVideo(MovieStream movieStream) async {
+
+  // Simple method to initialize demo video for any movie
+  Future<void> initializeMovieVideo(int movieId) async {
     try {
-      _availableSources = movieStream.sources;
-      _currentSource = movieStream.sources.firstWhere(
-        (source) => source.isDefault,
-        orElse: () => movieStream.sources.first,
-      );
+      // Use movie ID to pick a demo video (cycle through available videos)
+      final videoIndex = movieId % _demoVideos.length;
+      final videoUrl = _demoVideos[videoIndex];
 
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(_currentSource!.url),
-      );
-
+      _controller = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
       await _controller!.initialize();
+
       _isInitialized = true;
       _duration = _controller!.value.duration;
-
       _controller!.addListener(_videoListener);
+
       notifyListeners();
     } catch (e) {
       print('Error initializing video: $e');
+      _isInitialized = false;
+      notifyListeners();
     }
-  }
-
-  // New method to load real movie streams
-  Future<void> initializeMovieStreaming(int movieId) async {
-    try {
-      // Load real streaming sources from public domain service
-      _availableSources = await PublicDomainService.getMovieStreams(movieId);
-
-      if (_availableSources.isNotEmpty) {
-        _currentSource = _availableSources.first;
-        _currentQuality = _currentSource!.quality;
-
-        _controller = VideoPlayerController.networkUrl(
-          Uri.parse(_currentSource!.url),
-        );
-
-        await _controller!.initialize();
-        _isInitialized = true;
-        _duration = _controller!.value.duration;
-
-        _controller!.addListener(_videoListener);
-        notifyListeners();
-      } else {
-        throw Exception('No streaming sources available');
-      }
-    } catch (e) {
-      print('Error initializing movie streaming: $e');
-      // Fallback to demo content
-      await _initializeFallbackContent();
-    }
-  }
-
-  Future<void> _initializeFallbackContent() async {
-    _availableSources =
-        await PublicDomainService.getMovieStreams(0); // Get fallback
-    _currentSource = _availableSources.first;
-    _currentQuality = _currentSource!.quality;
-
-    _controller = VideoPlayerController.networkUrl(
-      Uri.parse(_currentSource!.url),
-    );
-
-    await _controller!.initialize();
-    _isInitialized = true;
-    _duration = _controller!.value.duration;
-    _controller!.addListener(_videoListener);
-    notifyListeners();
   }
 
   void _videoListener() {
@@ -127,28 +83,6 @@ class VideoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> changeQuality(StreamingSource source) async {
-    if (_controller != null && source.url != _currentSource?.url) {
-      final currentPosition = _controller!.value.position;
-      final wasPlaying = _controller!.value.isPlaying;
-
-      await _controller!.dispose();
-
-      _controller = VideoPlayerController.networkUrl(Uri.parse(source.url));
-      await _controller!.initialize();
-      await _controller!.seekTo(currentPosition);
-
-      if (wasPlaying) {
-        await _controller!.play();
-      }
-
-      _currentSource = source;
-      _currentQuality = source.quality;
-      _controller!.addListener(_videoListener);
-      notifyListeners();
-    }
-  }
-
   void setPlaybackSpeed(double speed) {
     _controller?.setPlaybackSpeed(speed);
     _playbackSpeed = speed;
@@ -175,7 +109,7 @@ class VideoProvider extends ChangeNotifier {
     _showControls = true;
     notifyListeners();
 
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (_isPlaying) {
         _showControls = false;
         notifyListeners();

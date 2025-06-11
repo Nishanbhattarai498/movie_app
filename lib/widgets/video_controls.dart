@@ -8,16 +8,13 @@ class VideoControls extends StatefulWidget {
   final VoidCallback onBack;
 
   const VideoControls({Key? key, required this.movie, required this.onBack})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _VideoControlsState createState() => _VideoControlsState();
 }
 
 class _VideoControlsState extends State<VideoControls> {
-  bool _showQualityMenu = false;
-  bool _showSpeedMenu = false;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<VideoProvider>(
@@ -79,34 +76,22 @@ class _VideoControlsState extends State<VideoControls> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'Quality: ${videoProvider.currentQuality}',
+                    'Demo Video',
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
             ),
-            // Quality Menu
+            // Settings Menu
             PopupMenuButton<String>(
               icon: Icon(Icons.settings, color: Colors.white),
               color: Colors.black87,
               onSelected: (value) {
-                if (value == 'quality') {
-                  _showQualityDialog(videoProvider);
-                } else if (value == 'speed') {
+                if (value == 'speed') {
                   _showSpeedDialog(videoProvider);
                 }
               },
               itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'quality',
-                  child: Row(
-                    children: [
-                      Icon(Icons.high_quality, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text('Quality', style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                ),
                 PopupMenuItem(
                   value: 'speed',
                   child: Row(
@@ -262,34 +247,6 @@ class _VideoControlsState extends State<VideoControls> {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  void _showQualityDialog(VideoProvider videoProvider) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.black87,
-        title: Text('Select Quality', style: TextStyle(color: Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: videoProvider.availableSources.map((source) {
-            return ListTile(
-              title: Text(
-                source.quality,
-                style: TextStyle(color: Colors.white),
-              ),
-              trailing: videoProvider.currentQuality == source.quality
-                  ? Icon(Icons.check, color: Colors.red)
-                  : null,
-              onTap: () {
-                videoProvider.changeQuality(source);
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
         ),
       ),
     );
